@@ -1,0 +1,178 @@
+.page-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #f4f7fe;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.book-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+  margin-top: 20px;
+}
+
+.book-card {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+.book-card:hover {
+  transform: scale(1.02);
+}
+
+.book-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.book-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.btn {
+  padding: 8px 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background: #0056b3;
+}
+
+.btn-delete {
+  background: #dc3545;
+}
+
+.btn-delete:hover {
+  background: #a71d2a;
+}
+
+.search-bar {
+  padding: 10px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+.book-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  max-width: 500px;
+  margin-inline: auto;
+}
+
+.book-form input {
+  padding: 12px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border 0.2s;
+}
+
+.book-form input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,123,255,0.3);
+}
+
+.history-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.history-card {
+  background: #ffffff;
+  border-left: 4px solid #007bff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+
+.history-card:hover {
+  transform: scale(1.02);
+}
+
+.history-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+/* Consistent card layouts across pages */
+.book-card.borrowed {
+  border-left: 4px solid #007bff;
+}
+.history-card {
+  border-left: 4px solid #28a745;
+}
+
+.btn-return {
+  margin-top: 10px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+.btn-return:hover {
+  background-color: #c82333;
+}
+
+.history-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.history-card {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.history-card:hover {
+  transform: scale(1.02);
+}
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}

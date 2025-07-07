@@ -1,0 +1,20 @@
+.book-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.book-card {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.book-card h4 {
+  margin-bottom: 0.5rem;
+}
+
+.book-card button {
+  margin-top: 0.5rem;
+}

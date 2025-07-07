@@ -1,0 +1,71 @@
+.book-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.book-card {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s;
+  position: relative;
+}
+
+.book-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.book-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.book-card p {
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.book-card .btn {
+  margin-top: 0.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.book-card .btn:hover {
+  background-color: #0056b3;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  border-radius: 4px;
+  font-weight: bold;
+  color: white;
+  background-color: #28a745; /* Green by default */
+  margin-top: 0.4rem;
+}
+
+.status-unavailable {
+  background-color: #dc3545;
+}
+
+.borrowed {
+  border-left: 4px solid #007bff;
+}
+
+.history {
+  border-left: 4px solid #28a745;
+}

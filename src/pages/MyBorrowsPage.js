@@ -1,0 +1,124 @@
+import { useEffect, useState } from 'react';
+import API from '../services/api';
+import Swal from 'sweetalert2';
+import './Page.css'; // 🔄 use same global style for page layout
+
+function MyBorrowsPage() {
+  const [borrows, setBorrows] = useState([]);
+
+  const fetchBorrows = async () => {
+    try {
+      const res = await API.get('/borrow/my', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setBorrows(res.data);
+    } catch {
+      Swal.fire('❌ Failed to load borrows', '', 'error');
+    }
+  };
+
+  const returnBook = async (bookId) => {
+    try {
+      await API.post(`/borrow/return/${bookId}`, null, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      Swal.fire('✅ Book returned!', '', 'success');
+      fetchBorrows();
+    } catch {
+      Swal.fire('❌ Return failed', '', 'error');
+    }
+  };
+  const handleDelete = async (borrowId) => {
+  const confirm = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'This will permanently delete this borrow record!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+  });
+
+  if (confirm.isConfirmed) {
+    try {
+      await API.delete(`/borrow/my/delete/${borrowId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      Swal.fire('✅ Record deleted!', '', 'success');
+      fetchBorrows();
+    } catch {
+      Swal.fire('❌ Delete failed', '', 'error');
+    }
+  }
+};
+
+
+  useEffect(() => {
+    fetchBorrows();
+  }, []);
+
+  const current = borrows.filter((b) => !b.returnDate);
+  const history = borrows.filter((b) => b.returnDate);
+
+  return (
+    <div className="page-container">
+      <h2 className="dashboard-title">🕮 My Borrowed Books</h2>
+
+      {/* Currently Borrowed Section */}
+      <section>
+        <h3 className="section-title">📘 Currently Borrowed</h3>
+        {current.length ? (
+          <div className="book-list-grid">
+            {current.map((b) => (
+              <div key={b.id} className="book-card borrowed">
+                <h4>{b.book?.title || 'Book Removed'}</h4>
+                <p><strong>Issue Date:</strong> {b.borrowDate}</p>
+                {b.book && (
+                  <button className="btn-return" onClick={() => returnBook(b.book.id)}>
+                    Return Book
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No active borrows.</p>
+        )}
+      </section>
+
+      {/* Borrow History Section */}
+      <section>
+        <h3 className="section-title">📗 Borrow History</h3>
+        {history.length ? (
+          <div className="history-list">
+            {history.map((b) => (
+              <div key={b.id} className="history-card">
+                <h4>{b.book?.title || 'Book Removed'}</h4>
+                <p><strong>Issued:</strong> {b.borrowDate}</p>
+                <p><strong>Returned:</strong> {b.returnDate}</p>
+                <button
+                   className="btn-delete"
+                   onClick={() => handleDelete(b.id)}
+                   style={{
+                      backgroundColor: 'red',
+                      color: 'white',
+                      border: 'none',
+                      padding: '5px 10px',
+                      marginTop: '8px',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                     >🗑️ Delete
+
+             </button>
+
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No borrow history.</p>
+        )}
+      </section>
+    </div>
+  );
+}
+
+export default MyBorrowsPage;
