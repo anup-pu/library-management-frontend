@@ -1,23 +1,31 @@
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 import Swal from 'sweetalert2';
+import { useLoader } from '../context/LoaderContext'; // 👈 Import loader
 import './Page.css';
 
 function IssuedBooksPage() {
   const [records, setRecords] = useState([]);
+  const { showLoader, hideLoader } = useLoader(); // 👈 Use loader
 
   useEffect(() => {
     fetchRecords();
   }, []);
 
-  const fetchRecords = () => {
-    API.get('/borrow/all', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
-      .then((res) => setRecords(res.data))
-      .catch(() => Swal.fire('❌ Failed to fetch issued books', '', 'error'));
+  const fetchRecords = async () => {
+    try {
+      showLoader(); // 👈 Show loader when fetching
+      const res = await API.get('/borrow/all', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      setRecords(res.data);
+    } catch (err) {
+      Swal.fire('❌ Failed to fetch issued books', '', 'error');
+    } finally {
+      hideLoader(); // 👈 Always hide
+    }
   };
 
   const handleDelete = async (id) => {
@@ -31,15 +39,18 @@ function IssuedBooksPage() {
 
     if (confirm.isConfirmed) {
       try {
+        showLoader(); // 👈 Show loader during delete
         await API.delete(`/borrow/delete/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
         Swal.fire('✅ Deleted', 'Borrow record removed', 'success');
-        fetchRecords(); // refresh the list
+        fetchRecords(); // Refresh list
       } catch (err) {
         Swal.fire('❌ Failed to delete record', '', 'error');
+      } finally {
+        hideLoader(); // 👈 Hide after delete
       }
     }
   };
@@ -59,15 +70,9 @@ function IssuedBooksPage() {
                 <span style={{ fontWeight: 'normal' }}>by</span>{' '}
                 <strong>{r.author || 'Unknown'}</strong>
               </h4>
-              <p>
-                <strong>User:</strong> {r.username} ({r.email})
-              </p>
-              <p>
-                <strong>Issued:</strong> {r.borrowDate}
-              </p>
-              <p>
-                <strong>Returned:</strong> {r.returnDate || '— Not Returned —'}
-              </p>
+              <p><strong>User:</strong> {r.username} ({r.email})</p>
+              <p><strong>Issued:</strong> {r.borrowDate}</p>
+              <p><strong>Returned:</strong> {r.returnDate || '— Not Returned —'}</p>
               <button className="btn delete-btn" onClick={() => handleDelete(r.borrowId)}>
                 Delete
               </button>

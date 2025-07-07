@@ -3,12 +3,15 @@ import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { toggleBookAvailability } from '../services/bookService';
 import Swal from 'sweetalert2';
+import { useLoader } from '../context/LoaderContext'; // 👈 import loader
 
 function BookList({ books, setBooks }) {
   const { user } = useContext(AuthContext);
+  const { showLoader, hideLoader } = useLoader(); // 👈 loader hook
 
   const handleToggle = async (id) => {
     try {
+      showLoader(); // 👈 show loader before request
       await toggleBookAvailability(id);
       setBooks(prev =>
         prev.map(book =>
@@ -17,6 +20,8 @@ function BookList({ books, setBooks }) {
       );
     } catch (error) {
       Swal.fire('❌ Failed to update status', '', 'error');
+    } finally {
+      hideLoader(); // 👈 always hide loader
     }
   };
 

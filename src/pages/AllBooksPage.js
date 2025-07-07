@@ -1,32 +1,70 @@
 import { useState, useEffect } from 'react';
 import API from '../services/api';
 import Swal from 'sweetalert2';
+import { useLoader } from '../context/LoaderContext'; // 👈 Import loader context
 import './Page.css';
 
 function AllBooksPage() {
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState('');
+  const { showLoader, hideLoader } = useLoader(); // 👈 Hook for showing/hiding loader
 
   useEffect(() => {
-    API.get('/books')
-      .then(res => setBooks(res.data))
-      .catch(() => Swal.fire('❌ Load failed', '', 'error'));
+    const fetchBooks = async () => {
+      try {
+        showLoader();
+        const res = await API.get('/books');
+        setBooks(res.data);
+      } catch {
+        Swal.fire('❌ Load failed', '', 'error');
+      } finally {
+        hideLoader();
+      }
+    };
+    fetchBooks();
   }, []);
 
-  const toggle = id =>
-    API.put(`/books/toggle/${id}`)
-      .then(() =>
-        setBooks(b => b.map(x => (x.id === id ? { ...x, available: !x.available } : x)))
-      )
-      .catch(() => Swal.fire('❌ Toggle failed', '', 'error'));
+  const toggle = async (id) => {
+    try {
+      showLoader();
+      await API.put(`/books/toggle/${id}`);
+      setBooks((prev) =>
+        prev.map((book) =>
+          book.id === id ? { ...book, available: !book.available } : book
+        )
+      );
+    } catch {
+      Swal.fire('❌ Toggle failed', '', 'error');
+    } finally {
+      hideLoader();
+    }
+  };
 
-  const remove = id =>
-    API.delete(`/books/${id}`)
-      .then(() => setBooks(b => b.filter(x => x.id !== id)))
-      .catch(() => Swal.fire('❌ Delete failed', '', 'error'));
+  const remove = async (id) => {
+    const confirm = await Swal.fire({
+      title: 'Delete Book?',
+      text: 'This book will be removed permanently.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+    });
 
-  const filtered = books.filter(b =>
-    b.title.toLowerCase().includes(search.toLowerCase())
+    if (confirm.isConfirmed) {
+      try {
+        showLoader();
+        await API.delete(`/books/${id}`);
+        setBooks((prev) => prev.filter((book) => book.id !== id));
+        Swal.fire('✅ Deleted!', '', 'success');
+      } catch {
+        Swal.fire('❌ Delete failed', '', 'error');
+      } finally {
+        hideLoader();
+      }
+    }
+  };
+
+  const filtered = books.filter((book) =>
+    book.title.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -38,20 +76,20 @@ function AllBooksPage() {
         className="search-bar"
         placeholder="🔍 Search by title..."
         value={search}
-        onChange={e => setSearch(e.target.value)}
+        onChange={(e) => setSearch(e.target.value)}
       />
 
       <div className="book-list-grid">
-        {filtered.map(b => (
-          <div key={b.id} className="book-card">
-            <h4>{b.title}</h4>
-            <p><strong>Author:</strong> {b.author}</p>
-            <p>Status: {b.available ? '✅ Available' : '❌ Issued'}</p>
+        {filtered.map((book) => (
+          <div key={book.id} className="book-card">
+            <h4>{book.title}</h4>
+            <p><strong>Author:</strong> {book.author}</p>
+            <p>Status: {book.available ? '✅ Available' : '❌ Issued'}</p>
             <div className="book-actions">
-              <button className="btn" onClick={() => toggle(b.id)}>
-                {b.available ? 'Mark Unavailable' : 'Mark Available'}
+              <button className="btn" onClick={() => toggle(book.id)}>
+                {book.available ? 'Mark Unavailable' : 'Mark Available'}
               </button>
-              <button className="btn btn-delete" onClick={() => remove(b.id)}>
+              <button className="btn btn-delete" onClick={() => remove(book.id)}>
                 🗑️ Delete
               </button>
             </div>

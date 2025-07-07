@@ -3,13 +3,16 @@ import { useState } from 'react';
 import { signup } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 import './Auth.css';
+import { useLoader } from '../context/LoaderContext'; // 👈 import
 
 function Signup() {
   const [form, setForm] = useState({ username: '', email: '', password: '', role: 'STUDENT' });
   const navigate = useNavigate();
+  const { showLoader, hideLoader } = useLoader(); // 👈 useLoader hook
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    showLoader(); // 👈 Show loader
     try {
       await signup(form);
       Swal.fire({
@@ -26,6 +29,8 @@ function Signup() {
         title: 'Signup Failed',
         text: 'User already exists with that email or username',
       });
+    } finally {
+      hideLoader(); // 👈 Always hide loader
     }
   };
 
@@ -33,10 +38,10 @@ function Signup() {
     <div className="form-container">
       <form onSubmit={handleSubmit}>
         <h2>Signup</h2>
-        <input placeholder="Username" onChange={(e) => setForm({ ...form, username: e.target.value })} />
-        <input placeholder="Email" onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <input type="password" placeholder="Password" onChange={(e) => setForm({ ...form, password: e.target.value })} />
-        <select onChange={(e) => setForm({ ...form, role: e.target.value })}>
+        <input name="username" placeholder="Username" onChange={(e) => setForm({ ...form, username: e.target.value })} />
+        <input name="email" placeholder="Email" onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <input name="password" type="password" placeholder="Password" onChange={(e) => setForm({ ...form, password: e.target.value })} />
+        <select name="role" onChange={(e) => setForm({ ...form, role: e.target.value })}>
           <option value="STUDENT">Student</option>
           <option value="ADMIN">Admin</option>
         </select>

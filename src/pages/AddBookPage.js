@@ -2,24 +2,30 @@ import { useState } from 'react';
 import API from '../services/api';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { useLoader } from '../context/LoaderContext'; // 👈 import loader
 import './Page.css';
 
 function AddBookPage() {
   const [form, setForm] = useState({ title: '', author: '', genre: '' });
   const nav = useNavigate();
+  const { showLoader, hideLoader } = useLoader(); // 👈 use loader
 
-  const add = (e) => {
+  const add = async (e) => {
     e.preventDefault();
-    API.post('/books', form, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    })
-      .then(() => {
-        Swal.fire('✅ Book added!', '', 'success');
-        nav('/admin/books');
-      })
-      .catch(() => Swal.fire('❌ Failed to add book', '', 'error'));
+    try {
+      showLoader(); // 👈 show loader
+      await API.post('/books', form, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      Swal.fire('✅ Book added!', '', 'success');
+      nav('/admin/books');
+    } catch {
+      Swal.fire('❌ Failed to add book', '', 'error');
+    } finally {
+      hideLoader(); // 👈 hide loader
+    }
   };
 
   return (

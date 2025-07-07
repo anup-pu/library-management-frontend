@@ -1,24 +1,32 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+
 import API from '../services/api';
 import Swal from 'sweetalert2';
-import './Page.css'; // 🔄 use same global style for page layout
+import { useLoader } from '../context/LoaderContext'; // 👈 Import loader hook
+import './Page.css';
 
 function MyBorrowsPage() {
   const [borrows, setBorrows] = useState([]);
+  const { showLoader, hideLoader } = useLoader(); // 👈 use loader
 
-  const fetchBorrows = async () => {
-    try {
-      const res = await API.get('/borrow/my', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      setBorrows(res.data);
-    } catch {
-      Swal.fire('❌ Failed to load borrows', '', 'error');
-    }
-  };
+  const fetchBorrows = useCallback(async () => {
+  try {
+    showLoader();
+    const res = await API.get('/borrow/my', {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    });
+    setBorrows(res.data);
+  } catch {
+    Swal.fire('❌ Failed to load borrows', '', 'error');
+  } finally {
+    hideLoader();
+  }
+}, [showLoader, hideLoader]);
+
 
   const returnBook = async (bookId) => {
     try {
+      showLoader(); // 👈 Show loader during return
       await API.post(`/borrow/return/${bookId}`, null, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
@@ -26,34 +34,39 @@ function MyBorrowsPage() {
       fetchBorrows();
     } catch {
       Swal.fire('❌ Return failed', '', 'error');
+    } finally {
+      hideLoader(); // 👈 Hide loader
     }
   };
+
   const handleDelete = async (borrowId) => {
-  const confirm = await Swal.fire({
-    title: 'Are you sure?',
-    text: 'This will permanently delete this borrow record!',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Yes, delete it!',
-  });
+    const confirm = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'This will permanently delete this borrow record!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it!',
+    });
 
-  if (confirm.isConfirmed) {
-    try {
-      await API.delete(`/borrow/my/delete/${borrowId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      Swal.fire('✅ Record deleted!', '', 'success');
-      fetchBorrows();
-    } catch {
-      Swal.fire('❌ Delete failed', '', 'error');
+    if (confirm.isConfirmed) {
+      try {
+        showLoader(); // 👈 Show loader
+        await API.delete(`/borrow/my/delete/${borrowId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        Swal.fire('✅ Record deleted!', '', 'success');
+        fetchBorrows();
+      } catch {
+        Swal.fire('❌ Delete failed', '', 'error');
+      } finally {
+        hideLoader(); // 👈 Hide loader
+      }
     }
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchBorrows();
-  }, []);
+  }, [fetchBorrows]);
 
   const current = borrows.filter((b) => !b.returnDate);
   const history = borrows.filter((b) => b.returnDate);
@@ -95,21 +108,20 @@ function MyBorrowsPage() {
                 <p><strong>Issued:</strong> {b.borrowDate}</p>
                 <p><strong>Returned:</strong> {b.returnDate}</p>
                 <button
-                   className="btn-delete"
-                   onClick={() => handleDelete(b.id)}
-                   style={{
-                      backgroundColor: 'red',
-                      color: 'white',
-                      border: 'none',
-                      padding: '5px 10px',
-                      marginTop: '8px',
-                      borderRadius: '4px',
-                      cursor: 'pointer',
-                    }}
-                     >🗑️ Delete
-
-             </button>
-
+                  className="btn-delete"
+                  onClick={() => handleDelete(b.id)}
+                  style={{
+                    backgroundColor: 'red',
+                    color: 'white',
+                    border: 'none',
+                    padding: '5px 10px',
+                    marginTop: '8px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  🗑️ Delete
+                </button>
               </div>
             ))}
           </div>

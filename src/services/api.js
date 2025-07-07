@@ -1,8 +1,11 @@
 import axios from 'axios';
 
+// 🔍 Debug log to check if the environment variable is being read correctly
+console.log("REACT_APP_BACKEND_URL =", process.env.REACT_APP_BACKEND_URL);
+
 const API = axios.create({
-  baseURL: 'https://library-management-backend-a5t7.onrender.com',
-  withCredentials: true, // optional, for secure cookies or session info
+  baseURL: process.env.REACT_APP_BACKEND_URL,
+  withCredentials: true,
 });
 
 API.interceptors.request.use((config) => {

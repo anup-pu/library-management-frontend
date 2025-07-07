@@ -1,15 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useLoader } from '../context/LoaderContext'; // 👈 import useLoader
 import './Dashboard.css';
 
 function StudentDashboard() {
-  const { user, logout } = useContext(AuthContext); // ✅ get user
+  const { user, logout } = useContext(AuthContext);
+  const { showLoader, hideLoader } = useLoader(); // 👈 useLoader hook
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login/student');
+    showLoader(); // 👈 show loader
+    setTimeout(() => {
+      logout();
+      hideLoader(); // 👈 hide after logout
+      navigate('/login/student');
+    }, 800);
   };
 
   return (
@@ -18,7 +24,9 @@ function StudentDashboard() {
         <h2 className="dashboard-title">
           🎓 Welcome to Student Dashboard {user?.username}
         </h2>
-        <button className="btn-logout" onClick={handleLogout}>🚪 Logout</button>
+        <button className="btn-logout" onClick={handleLogout}>
+          🚪 Logout
+        </button>
       </div>
 
       <div className="dashboard-links-grid">

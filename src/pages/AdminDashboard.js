@@ -1,15 +1,21 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { useLoader } from '../context/LoaderContext'; // 👈 import loader
 import '../components/Dashboard.css';
 
 function AdminDashboard() {
-  const { user, logout } = useContext(AuthContext); // ✅ get user
+  const { user, logout } = useContext(AuthContext);
+  const { showLoader, hideLoader } = useLoader(); // 👈 use loader
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout();
-    navigate('/login/admin');
+    showLoader(); // 👈 show loader
+    setTimeout(() => {
+      logout();
+      hideLoader(); // 👈 hide loader after logout
+      navigate('/login/admin');
+    }, 800); // optional delay to show loader briefly
   };
 
   return (
@@ -18,7 +24,9 @@ function AdminDashboard() {
         <h2 className="dashboard-title">
           🛠️ Welcome to Admin Dashboard {user?.username}
         </h2>
-        <button className="btn-logout" onClick={handleLogout}>🚪 Logout</button>
+        <button className="btn-logout" onClick={handleLogout}>
+          🚪 Logout
+        </button>
       </div>
 
       <div className="dashboard-links-grid">

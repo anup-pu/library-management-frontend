@@ -3,12 +3,14 @@ import { useState, useContext } from 'react';
 import { login as loginAPI } from '../services/authService';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useLoader } from '../context/LoaderContext'; // 👈 import loader hook
 import './Auth.css';
 
 function Login({ role }) {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const { login: saveLogin } = useContext(AuthContext); // ⬅ saves token & user
+  const { login: saveLogin } = useContext(AuthContext);
+  const { showLoader, hideLoader } = useLoader(); // 👈 useLoader
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -18,6 +20,7 @@ function Login({ role }) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
 
+    showLoader(); // 👈 Show loader
     try {
       const res = await loginAPI(identifier, password);
 
@@ -30,7 +33,6 @@ function Login({ role }) {
         return;
       }
 
-      // ✅ Save token & user via context
       saveLogin(res.data, res.data.token);
 
       Swal.fire({
@@ -49,6 +51,8 @@ function Login({ role }) {
         title: 'Login Failed',
         text: 'Invalid email/username or password',
       });
+    } finally {
+      hideLoader(); // 👈 Hide loader always
     }
   };
 
@@ -57,6 +61,7 @@ function Login({ role }) {
       <form onSubmit={handleLogin} className="login-form">
         <h2>{role} Login</h2>
         <input
+          name="identifier"
           type="text"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
@@ -64,6 +69,7 @@ function Login({ role }) {
           required
         />
         <input
+          name="password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

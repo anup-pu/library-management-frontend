@@ -1,29 +1,34 @@
-// src/components/BorrowedBooks.js
-
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 import Swal from 'sweetalert2';
+import { useLoader } from '../context/LoaderContext'; // 👈 import loader
 import './BookList.css';
 
 function BorrowedBooks() {
   const [borrowedBooks, setBorrowedBooks] = useState([]);
+  const { showLoader, hideLoader } = useLoader(); // 👈 use loader
 
   const fetchBorrowedBooks = async () => {
     try {
+      showLoader(); // 👈 show loading while fetching
       const res = await API.get('/borrow/my');
       setBorrowedBooks(res.data);
     } catch (error) {
       Swal.fire('❌ Could not fetch borrowed books', '', 'error');
+    } finally {
+      hideLoader(); // 👈 hide after fetch
     }
   };
 
   const returnBook = async (bookId) => {
     try {
+      showLoader(); // 👈 show loader while returning
       await API.post(`/borrow/return/${bookId}`);
       Swal.fire('✅ Book returned!', '', 'success');
       fetchBorrowedBooks();
     } catch {
       Swal.fire('❌ Return failed', '', 'error');
+      hideLoader(); // in case fetchBorrowedBooks not called
     }
   };
 
