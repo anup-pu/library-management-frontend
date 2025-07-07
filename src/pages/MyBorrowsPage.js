@@ -1,32 +1,30 @@
 import { useEffect, useState, useCallback } from 'react';
-
 import API from '../services/api';
 import Swal from 'sweetalert2';
-import { useLoader } from '../context/LoaderContext'; // 👈 Import loader hook
+import { useLoader } from '../context/LoaderContext';
 import './Page.css';
 
 function MyBorrowsPage() {
   const [borrows, setBorrows] = useState([]);
-  const { showLoader, hideLoader } = useLoader(); // 👈 use loader
+  const { showLoader, hideLoader } = useLoader();
 
   const fetchBorrows = useCallback(async () => {
-  try {
-    showLoader();
-    const res = await API.get('/borrow/my', {
-      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-    });
-    setBorrows(res.data);
-  } catch {
-    Swal.fire('❌ Failed to load borrows', '', 'error');
-  } finally {
-    hideLoader();
-  }
-}, [showLoader, hideLoader]);
-
+    try {
+      showLoader();
+      const res = await API.get('/borrow/my', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setBorrows(res.data);
+    } catch {
+      Swal.fire('❌ Failed to load borrows', '', 'error');
+    } finally {
+      hideLoader(); // ✅ No delay
+    }
+  }, [showLoader, hideLoader]);
 
   const returnBook = async (bookId) => {
     try {
-      showLoader(); // 👈 Show loader during return
+      showLoader();
       await API.post(`/borrow/return/${bookId}`, null, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
@@ -35,7 +33,7 @@ function MyBorrowsPage() {
     } catch {
       Swal.fire('❌ Return failed', '', 'error');
     } finally {
-      hideLoader(); // 👈 Hide loader
+      hideLoader();
     }
   };
 
@@ -50,7 +48,7 @@ function MyBorrowsPage() {
 
     if (confirm.isConfirmed) {
       try {
-        showLoader(); // 👈 Show loader
+        showLoader();
         await API.delete(`/borrow/my/delete/${borrowId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
@@ -59,13 +57,25 @@ function MyBorrowsPage() {
       } catch {
         Swal.fire('❌ Delete failed', '', 'error');
       } finally {
-        hideLoader(); // 👈 Hide loader
+        hideLoader();
       }
     }
   };
 
   useEffect(() => {
-    fetchBorrows();
+    let isMounted = true;
+
+    const loadData = async () => {
+      if (isMounted) {
+        await fetchBorrows();
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [fetchBorrows]);
 
   const current = borrows.filter((b) => !b.returnDate);
@@ -75,7 +85,6 @@ function MyBorrowsPage() {
     <div className="page-container">
       <h2 className="dashboard-title">🕮 My Borrowed Books</h2>
 
-      {/* Currently Borrowed Section */}
       <section>
         <h3 className="section-title">📘 Currently Borrowed</h3>
         {current.length ? (
@@ -97,7 +106,6 @@ function MyBorrowsPage() {
         )}
       </section>
 
-      {/* Borrow History Section */}
       <section>
         <h3 className="section-title">📗 Borrow History</h3>
         {history.length ? (
