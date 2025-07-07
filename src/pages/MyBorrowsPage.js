@@ -25,7 +25,7 @@ function MyBorrowsPage() {
 
   useEffect(() => {
     fetchBorrows();
-  }, [fetchBorrows]);
+  }, []);
 
   const returnBook = async (bookId) => {
     showLoader();
