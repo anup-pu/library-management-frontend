@@ -64,7 +64,7 @@ function IssuedBooksPage() {
       ) : (
         <div className="history-list">
           {records.map((r) => (
-            <div key={r.id} className="history-card">
+            <div key={r.borrowId} className="history-card">
               <h4>
                 <strong>{r.title || 'Book Removed'}</strong>{' '}
                 <span style={{ fontWeight: 'normal' }}>by</span>{' '}

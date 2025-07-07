@@ -9,31 +9,36 @@ function MyBorrowsPage() {
   const { showLoader, hideLoader } = useLoader();
 
   const fetchBorrows = useCallback(async () => {
+    showLoader();
     try {
-      showLoader();
       const res = await API.get('/borrow/my', {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setBorrows(res.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       Swal.fire('❌ Failed to load borrows', '', 'error');
     } finally {
-      hideLoader(); // ✅ No delay
+      hideLoader(); // ✅ Ensures loader stops
     }
   }, [showLoader, hideLoader]);
 
+  useEffect(() => {
+    fetchBorrows();
+  }, [fetchBorrows]);
+
   const returnBook = async (bookId) => {
+    showLoader();
     try {
-      showLoader();
       await API.post(`/borrow/return/${bookId}`, null, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       Swal.fire('✅ Book returned!', '', 'success');
       fetchBorrows();
-    } catch {
+    } catch (err) {
+      console.error(err);
       Swal.fire('❌ Return failed', '', 'error');
-    } finally {
-      hideLoader();
+      hideLoader(); // ✅ Important fallback
     }
   };
 
@@ -47,36 +52,20 @@ function MyBorrowsPage() {
     });
 
     if (confirm.isConfirmed) {
+      showLoader();
       try {
-        showLoader();
         await API.delete(`/borrow/my/delete/${borrowId}`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
         Swal.fire('✅ Record deleted!', '', 'success');
         fetchBorrows();
-      } catch {
+      } catch (err) {
+        console.error(err);
         Swal.fire('❌ Delete failed', '', 'error');
-      } finally {
-        hideLoader();
+        hideLoader(); // ✅ Important fallback
       }
     }
   };
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadData = async () => {
-      if (isMounted) {
-        await fetchBorrows();
-      }
-    };
-
-    loadData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [fetchBorrows]);
 
   const current = borrows.filter((b) => !b.returnDate);
   const history = borrows.filter((b) => b.returnDate);
