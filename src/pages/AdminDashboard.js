@@ -64,7 +64,6 @@ function AdminDashboard() {
           transition={{ duration: 0.6 }}
           className="links-title"
         >
-          🚀 Your Admin Tools
         </motion.h2>
         <div className="dashboard-links-grid">
           {[
@@ -103,6 +102,7 @@ function AdminDashboard() {
             <a href="https://www.linkedin.com/in/anup-kumar-337a3324a/">🔗 LinkedIn</a>
           </div>
           <p>© 2025 BorrowBuddy | All Rights Reserved</p>
+          <p>Made with ❤️ by Anup Kumar</p>
         </div>
       </motion.footer>
     </div>
